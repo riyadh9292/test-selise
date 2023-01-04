@@ -1,10 +1,19 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import { ToastContainer, toast } from "react-toastify";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
+      <ToastContainer />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        {/* <Route path="about" element={ <About/> } />
+        <Route path="contact" element={ <Contact/> } /> */}
+      </Routes>
+
+      {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.js</code> and save to reload.
@@ -17,7 +26,7 @@ function App() {
         >
           Learn React
         </a>
-      </header>
+      </header> */}
     </div>
   );
 }
