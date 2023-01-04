@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { notify } from "../components/Toast";
-import { getRandomInt } from "../utils/randomNumber";
-import { saveToLocal } from "../utils/saveToLocalStorage";
-import { useNavigate } from "react-router-dom";
+import { inputStyle } from "../pages/Home";
+import { getSingleData } from "../utils/getFromLOcalStorage";
+import { updateToLocal } from "../utils/saveToLocalStorage";
+import { notify } from "./Toast";
 
-export const inputStyle =
-  "px-4 py-2 border border-[#e6e6e6] rounded-md focus:outline-none";
-
-export default function Home() {
-  const navigate = useNavigate();
-
+export default function SingleVehicleEdit({ vehicleId, handleClose }) {
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [vehicleType, setVehicleType] = useState("");
   const [vehicleOwnerName, setVehicleOwnerName] = useState("");
@@ -17,20 +12,26 @@ export default function Home() {
   const [vehicleStatus, setVehicleStatus] = useState("in");
   const [ownerAddress, setOwnerAddress] = useState("");
   const [vehicleEntry, setVehicleEntry] = useState("");
-  //   const [exactEntryTime, setExactEntryTime] = useState("");
-  //   const [exactExitTime, setExactExitTime] = useState("");
+
   const [vehicleExit, setVehicleExit] = useState("");
   const [parkingCharge, setParkingCharge] = useState(0);
-
+  useEffect(() => {
+    const vehicleData = getSingleData(vehicleId);
+    if (vehicleData) {
+      setVehicleNumber(vehicleData.vehicleNumber);
+      setVehicleType(vehicleData.vehicleType);
+      setVehicleOwnerName(vehicleData.vehicleOwnerName);
+      setVehicleOwnerPhone(vehicleData.vehicleOwnerPhone);
+      setVehicleStatus(vehicleData.vehicleStatus);
+      setOwnerAddress(vehicleData.ownerAddress);
+      setVehicleEntry(vehicleData.entry);
+      setVehicleExit(vehicleData.exit);
+      setParkingCharge(vehicleData.parkingCharge);
+    }
+  }, [vehicleId]);
   const handleSubmit = (e) => {
     e.preventDefault();
-    // conditions that check form and prevent form to save
-    // if (vehicleExit < vehicleEntry || exactExitTime < exactEntryTime) {
-    //   notify("Car entry and exit time mismatched.");
-    //   return;
-    // }
-    // console.log(vehicleStatus, "vehicleStatus");
-
+    // conditions that prevent form to save
     if (vehicleStatus === "out") {
       if (!vehicleExit) {
         notify("exit time should be added.");
@@ -46,8 +47,7 @@ export default function Home() {
       }
     }
 
-    const saved = saveToLocal({
-      id: getRandomInt(10000),
+    const saved = updateToLocal(vehicleId, {
       vehicleNumber,
       vehicleType,
       vehicleOwnerName,
@@ -60,36 +60,20 @@ export default function Home() {
     });
 
     if (saved === "success") {
-      notify("successfully saved");
+      notify("Successfully Updated.");
+      handleClose();
     }
   };
 
-  useEffect(() => {
-    //   conditionally set parking charge.
-    if (vehicleType === "car") {
-      setParkingCharge(100);
-    } else if (vehicleType === "microbus") {
-      setParkingCharge(250);
-    } else if (vehicleType === "truck") {
-      setParkingCharge(500);
-    } else {
-      setParkingCharge(0);
-    }
-  }, [vehicleType]);
-
   return (
-    <div>
-      <div
-        onClick={() => navigate("/table")}
-        className="text-lg my-4 p-4 border border-gray-600 bg-gray-300 text-pink-600 cursor-pointer"
-      >
-        Got to the table
-      </div>
+    <div className="bg-white p-20 w-[90%] mx-auto">
+      {" "}
       <form onSubmit={handleSubmit} className="space-y-2 mt-10">
         <div>
           <label>Vehicle Number</label>
           <input
             onChange={(e) => setVehicleNumber(e.target.value)}
+            value={vehicleNumber}
             type="number"
             className={inputStyle}
           />
@@ -118,6 +102,7 @@ export default function Home() {
           <input
             type="text"
             onChange={(e) => setVehicleOwnerName(e.target.value)}
+            value={vehicleOwnerName}
             className={inputStyle}
           />
         </div>
@@ -127,6 +112,7 @@ export default function Home() {
           <input
             type="number"
             onChange={(e) => setVehicleOwnerPhone(e.target.value)}
+            value={vehicleOwnerPhone}
             className={inputStyle}
           />
         </div>
@@ -158,6 +144,7 @@ export default function Home() {
           <label>Owner Address</label>
           <input
             onChange={(e) => setOwnerAddress(e.target.value)}
+            value={ownerAddress}
             type="text"
             className={inputStyle}
           />
@@ -167,9 +154,9 @@ export default function Home() {
           <label>Entry Time</label>
           <div>
             <input
-              //   type="date"
               type="datetime-local"
               onChange={(e) => setVehicleEntry(e.target.value)}
+              value={vehicleEntry}
               className={inputStyle}
             />
             {/* <input
@@ -184,9 +171,9 @@ export default function Home() {
           <label>Exit Time</label>
           <div>
             <input
-              //   type="date"
               type="datetime-local"
               onChange={(e) => setVehicleExit(e.target.value)}
+              value={vehicleExit}
               className={inputStyle}
             />
             {/* <input
