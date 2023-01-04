@@ -9,12 +9,27 @@ function App() {
   const navigate = useNavigate();
   return (
     <div className="App">
-      <div
-        onClick={() => navigate("/dashboard")}
-        className=" cursor-pointer p-4 w-fit border border-[#e6e6e6] rounded bg-pink-300 text-white"
-      >
-        dashboard
+      <div className="flex items-center gap-10">
+        <div
+          onClick={() => navigate("/dashboard")}
+          className=" cursor-pointer p-4 w-fit border border-[#e6e6e6] rounded bg-pink-300 text-white"
+        >
+          dashboard
+        </div>
+        <div
+          onClick={() => navigate("/")}
+          className=" cursor-pointer p-4 w-fit border border-[#e6e6e6] rounded bg-pink-300 text-white"
+        >
+          home
+        </div>
+        <div
+          onClick={() => navigate("/table")}
+          className=" cursor-pointer p-4 w-fit border border-[#e6e6e6] rounded bg-pink-300 text-white"
+        >
+          table
+        </div>
       </div>
+
       <ToastContainer />
       <Routes>
         <Route path="/" element={<Home />} />

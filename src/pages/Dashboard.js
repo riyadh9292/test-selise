@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
+import PieChart from "../components/PieChart";
 import { getData } from "../utils/getFromLOcalStorage";
 
 export default function Dashboard() {
   const [totalData, setTotalData] = useState([]);
   const [filtered, setFiltered] = useState([]);
+  const [numberOfBus, setNumberOfBus] = useState(0);
+  const [numberOfCar, setNumberOfCar] = useState(0);
+  const [numberOfTruck, setNumberOfTruck] = useState(0);
   const handleFilter = (date) => {
     const stringDate = date + "";
     console.log(stringDate.slice(0, 10), "date");
@@ -12,12 +16,31 @@ export default function Dashboard() {
       (data) => data.entry.slice(0, 10) === stringDate.slice(0, 10)
     );
     setFiltered(todaysData);
-    // console.log(todaysData, "todaysData");
   };
   useEffect(() => {
     const allData = getData();
+    // counting all the vehicles
+    const microbus = allData.filter((data) => data?.vehicleType === "microbus");
+    setNumberOfBus(microbus?.length || 0);
+    const car = allData.filter((data) => data?.vehicleType === "car");
+    setNumberOfCar(car?.length || 0);
+    const truck = allData.filter((data) => data?.vehicleType === "truck");
+    setNumberOfTruck(truck?.length || 0);
+
     setTotalData(allData);
-  }, [filtered]);
+  }, []);
+  const data = {
+    labels: ["Microbus", "Car", "Truck"],
+
+    datasets: [
+      {
+        label: "Popularity of colours",
+        data: [numberOfBus, numberOfCar, numberOfTruck],
+        backgroundColor: ["red", "green", "blue"],
+        borderWidth: 1,
+      },
+    ],
+  };
 
   return (
     <>
@@ -50,6 +73,9 @@ export default function Dashboard() {
             <p>{data?.vehicleStatus}</p>
           </div>
         ))}
+      <div className="my-10 p-20">
+        <PieChart chartData={data} />
+      </div>
     </>
   );
 }
