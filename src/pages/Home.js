@@ -1,13 +1,15 @@
-import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useEffect, useState } from "react";
+import { notify } from "../components/Toast";
 import { getRandomInt } from "../utils/randomNumber";
 import { saveToLocal } from "../utils/saveToLocalStorage";
+import { useNavigate } from "react-router-dom";
 
 const inputStyle =
   "px-4 py-2 border border-[#e6e6e6] rounded-md focus:outline-none";
 
 export default function Home() {
+  const navigate = useNavigate();
+
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [vehicleType, setVehicleType] = useState("");
   const [vehicleOwnerName, setVehicleOwnerName] = useState("");
@@ -15,12 +17,30 @@ export default function Home() {
   const [vehicleStatus, setVehicleStatus] = useState("in");
   const [ownerAddress, setOwnerAddress] = useState("");
   const [vehicleEntry, setVehicleEntry] = useState("");
+  const [exactEntryTime, setExactEntryTime] = useState("");
+  const [exactExitTime, setExactExitTime] = useState("");
   const [vehicleExit, setVehicleExit] = useState("");
   const [parkingCharge, setParkingCharge] = useState(0);
-  const notify = () => toast("Wow so easy !");
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // conditions that prevent form to save
+    if (vehicleExit < vehicleEntry || exactExitTime < exactEntryTime) {
+      notify("Car entry and exit time mismatched.");
+      return;
+    }
+
+    if (vehicleStatus === "out") {
+      if (!vehicleExit && !exactExitTime) {
+        notify("exit time should be added.");
+        return;
+      }
+      if (!vehicleEntry && !exactEntryTime) {
+        notify("Time check please");
+        return;
+      }
+    }
+
     const saved = saveToLocal({
       id: getRandomInt(10000),
       vehicleNumber,
@@ -29,18 +49,37 @@ export default function Home() {
       vehicleOwnerPhone,
       vehicleStatus,
       ownerAddress,
-      vehicleEntry,
-      vehicleExit,
+      entry: new Date(vehicleEntry) + new Date(exactEntryTime),
+      exit: new Date(vehicleExit) + new Date(exactExitTime),
       parkingCharge,
     });
 
     if (saved === "success") {
-      notify();
+      notify("successfully saved");
     }
   };
 
+  useEffect(() => {
+    //   conditionally set parking charge.
+    if (vehicleType === "car") {
+      setParkingCharge(100);
+    } else if (vehicleType === "microbus") {
+      setParkingCharge(250);
+    } else if (vehicleType === "truck") {
+      setParkingCharge(500);
+    } else {
+      setParkingCharge(0);
+    }
+  }, [vehicleType]);
+
   return (
     <div>
+      <div
+        onClick={() => navigate("/table")}
+        className="text-lg my-4 p-4 border border-gray-600 bg-gray-300 text-pink-600 cursor-pointer"
+      >
+        Got to the table
+      </div>
       <form onSubmit={handleSubmit} className="space-y-2 mt-10">
         <div>
           <label>Vehicle Number</label>
@@ -121,27 +160,43 @@ export default function Home() {
         <div>
           {" "}
           <label>Entry Time</label>
-          <input
-            type="date"
-            onChange={(e) => setVehicleEntry(e.target.value)}
-            className={inputStyle}
-          />
+          <div>
+            <input
+              type="date"
+              onChange={(e) => setVehicleEntry(e.target.value)}
+              className={inputStyle}
+            />
+            <input
+              onChange={(e) => setExactEntryTime(e.target.value)}
+              type="time"
+              className={inputStyle}
+            />
+          </div>
         </div>
         <div>
           {" "}
           <label>Exit Time</label>
-          <input
-            type="date"
-            onChange={(e) => setVehicleExit(e.target.value)}
-            className={inputStyle}
-          />
+          <div>
+            <input
+              type="date"
+              onChange={(e) => setVehicleExit(e.target.value)}
+              className={inputStyle}
+            />
+            <input
+              onChange={(e) => setExactExitTime(e.target.value)}
+              type="time"
+              className={inputStyle}
+            />
+          </div>
         </div>
         <div>
           {" "}
           <label>Parking Charge</label>
           <input
             type="number"
+            value={parkingCharge}
             onChange={(e) => setParkingCharge(e.target.value)}
+            disabled
             className={inputStyle}
           />
         </div>

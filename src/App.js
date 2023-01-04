@@ -2,6 +2,7 @@ import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import { ToastContainer, toast } from "react-toastify";
+import Table from "./pages/Table";
 
 function App() {
   return (
@@ -9,8 +10,8 @@ function App() {
       <ToastContainer />
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* <Route path="about" element={ <About/> } />
-        <Route path="contact" element={ <Contact/> } /> */}
+        {/* {/* <Route path="about" element={ <About/> } /> */}
+        <Route path="table" element={<Table />} />
       </Routes>
 
       {/* <header className="App-header">
