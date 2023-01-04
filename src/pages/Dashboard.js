@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import LineChart from "../components/LineChart";
 import PieChart from "../components/PieChart";
 import { getData } from "../utils/getFromLOcalStorage";
 
@@ -10,25 +11,25 @@ export default function Dashboard() {
   const [numberOfTruck, setNumberOfTruck] = useState(0);
   const handleFilter = (date) => {
     const stringDate = date + "";
-    console.log(stringDate.slice(0, 10), "date");
-    console.log(totalData, "totalData");
     const todaysData = totalData.filter(
-      (data) => data.entry.slice(0, 10) === stringDate.slice(0, 10)
+      (data) => data?.entry?.slice(0, 10) === stringDate.slice(0, 10)
     );
     setFiltered(todaysData);
   };
   useEffect(() => {
     const allData = getData();
     // counting all the vehicles
-    const microbus = allData.filter((data) => data?.vehicleType === "microbus");
+    const microbus = allData?.filter(
+      (data) => data?.vehicleType === "microbus"
+    );
     setNumberOfBus(microbus?.length || 0);
-    const car = allData.filter((data) => data?.vehicleType === "car");
+    const car = allData?.filter((data) => data?.vehicleType === "car");
     setNumberOfCar(car?.length || 0);
-    const truck = allData.filter((data) => data?.vehicleType === "truck");
+    const truck = allData?.filter((data) => data?.vehicleType === "truck");
     setNumberOfTruck(truck?.length || 0);
-
     setTotalData(allData);
   }, []);
+
   const data = {
     labels: ["Microbus", "Car", "Truck"],
 
@@ -38,6 +39,50 @@ export default function Dashboard() {
         data: [numberOfBus, numberOfCar, numberOfTruck],
         backgroundColor: ["red", "green", "blue"],
         borderWidth: 1,
+      },
+    ],
+  };
+  //   line chart
+  let labels = [];
+  for (let i = 0; i < totalData?.length; i++) {
+    if (!labels.includes(totalData[i].entry.slice(0, 10))) {
+      labels.push(totalData[i].entry.slice(0, 10));
+    }
+  }
+  //   let datasets = Array(labels.length).fill(1);
+
+  //   for (let i = 0; i < totalData?.length; i++) {}
+  console.log(labels, "labels");
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Chart.js Line Chart",
+      },
+    },
+  };
+
+  const dataLineChart = {
+    labels,
+    datasets: [
+      {
+        label: "My First Dataset",
+        data: labels?.map((label) => {
+          let count = 0;
+          totalData?.map((data) => {
+            if (data?.entry?.slice(0, 10) === label) {
+              count += 1;
+            }
+          });
+          return count;
+        }),
+        fill: false,
+        borderColor: "rgb(75, 192, 192)",
+        tension: 0.1,
       },
     ],
   };
@@ -75,6 +120,9 @@ export default function Dashboard() {
         ))}
       <div className="my-10 p-20">
         <PieChart chartData={data} />
+      </div>
+      <div className="my-10 p-20">
+        <LineChart data={dataLineChart} options={options} />
       </div>
     </>
   );

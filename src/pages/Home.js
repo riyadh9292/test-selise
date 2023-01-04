@@ -30,6 +30,10 @@ export default function Home() {
     //   return;
     // }
     // console.log(vehicleStatus, "vehicleStatus");
+    if (vehicleExit && vehicleExit < vehicleEntry) {
+      notify("Car entry and exit time mismatched.");
+      return;
+    }
 
     if (vehicleStatus === "out") {
       if (!vehicleExit) {
